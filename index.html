@@ -5,24 +5,376 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Uma Musume Club Dashboard</title>
   <style>
-    :root{--panel:#171b2e;--panel-2:#1d233b;--border:#2b3354;--text:#edf1ff;--muted:#9ca8d4;--good:#3ddc97;--bad:#ff7d7d;--link:#aecdff}
-    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#0d1020 0%, #131831 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-    .container{width:min(1480px,calc(100% - 24px));margin:20px auto 40px}.header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap}
-    h1{margin:0 0 8px;font-size:30px;line-height:1.1}.subtitle{color:var(--muted);margin:0}.top-links{display:flex;gap:10px;flex-wrap:wrap}
-    .top-links a{text-decoration:none;color:var(--text);background:rgba(23,27,46,.94);border:1px solid var(--border);border-radius:12px;padding:10px 14px;font-weight:700}
-    .card{background:rgba(23,27,46,.94);border:1px solid var(--border);border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
-    .month-nav{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px;margin-bottom:16px;flex-wrap:wrap}
-    .month-nav button{border:1px solid var(--border);background:var(--panel-2);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
-    .month-nav button:hover:not(:disabled){background:#253055}.month-nav button:disabled{opacity:.4;cursor:not-allowed}.month-label{min-width:220px;text-align:center;font-size:18px;font-weight:800}
-    .summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:16px}.summary-item{padding:16px}.summary-item .label{color:var(--muted);font-size:13px;margin-bottom:6px}.summary-item .value{font-size:24px;font-weight:800;line-height:1.15;overflow-wrap:anywhere}
-    .table-wrap{overflow-x:auto} table{width:100%;border-collapse:collapse;min-width:980px} th,td{padding:12px;border-bottom:1px solid rgba(43,51,84,.75);text-align:left;vertical-align:middle;font-size:14px}
-    th{background:rgba(29,35,59,.98);font-size:13px;color:var(--text);white-space:normal;line-height:1.25;word-break:break-word} th.sortable{cursor:pointer;user-select:none} th .arrow{margin-left:6px;color:var(--muted);font-size:11px} tbody tr:hover{background:rgba(141,180,255,.06)}
-    .rank{font-weight:800;color:#cfe0ff}.name{font-weight:700}.name a{color:var(--link);text-decoration:none}.name a:hover{text-decoration:underline}.muted{color:var(--muted)}
-    .badge{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid transparent}.badge.active{background:rgba(61,220,151,.12);color:#8df1c4;border-color:rgba(61,220,151,.25)}.badge.inactive{background:rgba(255,125,125,.12);color:#ffb1b1;border-color:rgba(255,125,125,.25)}.role{display:inline-block;margin-left:8px;color:#ffd479;font-size:12px;font-weight:700}
-    @media (max-width:1100px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}} @media (max-width:640px){.summary{grid-template-columns:1fr}h1{font-size:24px}.container{width:min(100%,calc(100% - 16px))}table{min-width:860px}}
-  </style>
+:root{
+  --bg1:#fff5fb;
+  --bg2:#eef7ff;
+  --panel:rgba(255,255,255,.88);
+  --panel-strong:#ffffff;
+  --border:#dbe7ff;
+  --text:#294064;
+  --muted:#6e85ad;
+  --pink:#ff77b7;
+  --pink-soft:#ffd8ea;
+  --blue:#6fa8ff;
+  --blue-soft:#deedff;
+  --yellow:#ffd86b;
+  --yellow-soft:#fff4c8;
+  --mint:#66d6b8;
+  --mint-soft:#d9fff4;
+  --danger:#ff7b9c;
+  --danger-soft:#ffe2ea;
+  --shadow:0 12px 40px rgba(122,147,201,.16);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255,119,183,.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(111,168,255,.18), transparent 30%),
+    linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 100%);
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.35), transparent 35%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 18px, rgba(255,255,255,0) 18px 36px);
+  opacity:.35;
+}
+.container{
+  position:relative;
+  z-index:1;
+  width:min(1480px, calc(100% - 24px));
+  margin:24px auto 40px;
+}
+.header{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+  animation:fadeUp .55s ease both;
+}
+h1{
+  margin:0 0 8px;
+  font-size:32px;
+  line-height:1.08;
+  letter-spacing:-.02em;
+}
+.subtitle{
+  color:var(--muted);
+  margin:0;
+  font-size:15px;
+}
+.top-links{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.top-links a,.ghost-btn,.seg button,.month-nav button,.select-wrap select{
+  text-decoration:none;
+  color:var(--text);
+  background:rgba(255,255,255,.78);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px 14px;
+  font-weight:700;
+  box-shadow:var(--shadow);
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+}
+.top-links a:hover,.ghost-btn:hover,.seg button:hover,.month-nav button:hover:not(:disabled),.select-wrap select:hover{
+  transform:translateY(-2px);
+  box-shadow:0 16px 40px rgba(122,147,201,.22);
+  border-color:#bfd5ff;
+  background:#fff;
+}
+.top-links a.active,.seg button.active{
+  background:linear-gradient(135deg, #ffffff 0%, var(--blue-soft) 100%);
+  border-color:#b9d3ff;
+}
+.card{
+  background:var(--panel);
+  backdrop-filter: blur(10px);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  animation:fadeUp .55s ease both;
+}
+.month-nav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:14px;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.month-nav button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+.month-label{
+  min-width:230px;
+  text-align:center;
+  font-size:18px;
+  font-weight:900;
+  color:#3a5f93;
+}
+.summary{
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0,1fr));
+  gap:12px;
+  margin-bottom:16px;
+}
+.summary.compact4{grid-template-columns:repeat(4, minmax(0,1fr))}
+.summary-item{
+  padding:18px;
+  position:relative;
+  overflow:hidden;
+}
+.summary-item::after{
+  content:"";
+  position:absolute;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,255,255,0));
+  right:-20px;
+  top:-20px;
+}
+.summary-item .label{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  font-weight:800;
+}
+.summary-item .value{
+  font-size:25px;
+  font-weight:900;
+  line-height:1.1;
+  overflow-wrap:anywhere;
+}
+.summary-item:nth-child(1){background:linear-gradient(135deg,#fff,#f7fbff)}
+.summary-item:nth-child(2){background:linear-gradient(135deg,#fffaf1,#fff)}
+.summary-item:nth-child(3){background:linear-gradient(135deg,#fff2f8,#fff)}
+.summary-item:nth-child(4){background:linear-gradient(135deg,#f3fff9,#fff)}
+.summary-item:nth-child(5){background:linear-gradient(135deg,#f3f8ff,#fff)}
+.summary-item:nth-child(6){background:linear-gradient(135deg,#fff8fb,#fff)}
+.legend{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:0 0 14px;
+  animation:fadeUp .6s ease both;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  background:rgba(255,255,255,.74);
+  border:1px solid var(--border);
+  border-radius:999px;
+  font-weight:800;
+  color:#5576a7;
+  box-shadow:var(--shadow);
+}
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+}
+.table-wrap{overflow-x:auto}
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  min-width:980px;
+}
+th, td{
+  padding:13px 12px;
+  border-bottom:1px solid #e7efff;
+  text-align:left;
+  vertical-align:middle;
+  font-size:14px;
+  background:transparent;
+}
+th{
+  font-size:13px;
+  color:#5d7fb0;
+  white-space:normal;
+  line-height:1.25;
+  word-break:break-word;
+  font-weight:900;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  background:rgba(245,249,255,.95);
+}
+th:first-child{border-top-left-radius:20px}
+th:last-child{border-top-right-radius:20px}
+th.sortable{cursor:pointer;user-select:none}
+th .arrow{margin-left:6px;color:#90a8d2;font-size:11px}
+tbody tr{
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  animation:fadeUp .45s ease both;
+  animation-delay:var(--row-delay,0ms);
+}
+tbody tr:hover{
+  background:rgba(255,255,255,.55);
+  transform:translateY(-1px);
+}
+.rank{
+  font-weight:900;
+  color:#547bb0;
+}
+.name{font-weight:900}
+.name a{
+  color:#2c64b2;
+  text-decoration:none;
+}
+.name a:hover{text-decoration:underline}
+.muted{color:var(--muted)}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid transparent;
+}
+.badge.active{
+  background:var(--mint-soft);
+  color:#1f8f74;
+  border-color:#b2f0de;
+}
+.badge.inactive{
+  background:var(--danger-soft);
+  color:#bf5574;
+  border-color:#ffc4d4;
+}
+.row-ok td{
+  background:linear-gradient(90deg, rgba(217,255,244,.55), rgba(255,255,255,0) 22%);
+}
+.row-missed td{
+  background:linear-gradient(90deg, rgba(255,226,234,.95), rgba(255,255,255,0) 30%);
+  border-bottom-color:#ffd5df;
+}
+.row-ok td:first-child{border-left:5px solid var(--mint)}
+.row-missed td:first-child{border-left:5px solid var(--danger)}
+.role{
+  display:inline-block;
+  margin-left:8px;
+  color:#ff77b7;
+  font-size:12px;
+  font-weight:900;
+}
+.goal-value.missed{color:#c45472}
+.goal-value.ok{color:#1f8f74}
+.controls{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+  align-items:center;
+  animation:fadeUp .6s ease both;
+}
+.seg{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.select-wrap select{
+  padding-right:34px;
+  appearance:none;
+}
+.chart-card{padding:18px}
+.chart-shell{
+  min-height:520px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.chart-shell svg{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.chart-legend{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 12px;
+  margin-top:14px;
+}
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,.72);
+  font-weight:700;
+  color:#5576a7;
+}
+.legend-swatch{
+  width:12px;
+  height:12px;
+  border-radius:4px;
+  flex:0 0 auto;
+}
+.note{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:10px;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes growBar{
+  from{transform:scaleY(0);transform-origin:bottom}
+  to{transform:scaleY(1);transform-origin:bottom}
+}
+@keyframes popIn{
+  from{opacity:0;transform:scale(.9)}
+  to{opacity:1;transform:scale(1)}
+}
+.bar-anim{animation:growBar .65s ease both}
+.slice-anim{animation:popIn .45s ease both}
+.empty{
+  padding:24px;
+  color:var(--muted);
+}
+@media (max-width:1100px){
+  .summary{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .summary.compact4{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .chart-legend{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .summary,.summary.compact4{grid-template-columns:1fr}
+  h1{font-size:25px}
+  .container{width:min(100%, calc(100% - 16px))}
+  table{min-width:840px}
+  .chart-shell{min-height:420px}
+}
+</style>
 </head>
 <body>
+
   <div class="container">
     <div class="header">
       <div>
@@ -30,16 +382,25 @@
         <p class="subtitle" id="pageSubtitle">Chargement…</p>
       </div>
       <div class="top-links">
-        <a href="./index.html">Membres</a>
-        <a href="./total.html">Totaux</a>
+        <a class="active" href="./index_v2.html">Membres</a>
+        <a href="./total_v3.html">Totaux</a>
+        <a href="./graph.html">Graph</a>
       </div>
     </div>
+
     <div class="card month-nav">
       <button id="prevMonthBtn">← Mois précédent</button>
       <div class="month-label" id="monthLabel">—</div>
       <button id="nextMonthBtn">Mois suivant →</button>
     </div>
+
     <div class="summary" id="summary"></div>
+
+    <div class="legend">
+      <div class="pill"><span class="dot" style="background:var(--mint)"></span> Objectif atteint : 2 000 000+</div>
+      <div class="pill"><span class="dot" style="background:var(--danger)"></span> Sous l’objectif club : moins de 2 000 000</div>
+    </div>
+
     <div class="card table-wrap">
       <table>
         <thead>
@@ -59,22 +420,146 @@
       </table>
     </div>
   </div>
+
   <script>
-    const state={manifest:[],monthIndex:0,data:null,sortKey:"monthly_gain",sortDirection:"desc"};
-    const formatNumber=v=>new Intl.NumberFormat("fr-FR").format(Number(v??0));
-    const formatDate=v=>{if(!v)return "—";const d=new Date(v);return new Intl.DateTimeFormat("fr-FR",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(d);};
-    const escapeHtml=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-    const getStatus=m=>m.isActive?"Actif":"Inactif";
-    function computeRankMap(members){const sorted=[...members].sort((a,b)=>{if((b.monthly_gain??0)!==(a.monthly_gain??0))return (b.monthly_gain??0)-(a.monthly_gain??0);if((b.fan_count??0)!==(a.fan_count??0))return (b.fan_count??0)-(a.fan_count??0);return (a.name??"").localeCompare(b.name??"","fr",{sensitivity:"base"});});const rankMap=new Map();sorted.forEach((m,i)=>rankMap.set(m.trainer_id,i+1));return rankMap;}
-    function compareRows(a,b,key,direction){const dir=direction==="asc"?1:-1;let av=a[key],bv=b[key];if(key==="status"){av=getStatus(a);bv=getStatus(b);}if(key==="last_updated"){av=av?new Date(av).getTime():0;bv=bv?new Date(bv).getTime():0;}if(typeof av==="string"&&typeof bv==="string")return av.localeCompare(bv,"fr",{sensitivity:"base"})*dir;return (Number(av??0)-Number(bv??0))*dir;}
-    function renderSortArrows(){document.querySelectorAll("th.sortable").forEach(th=>{const arrow=th.querySelector(".arrow");const key=th.dataset.key;arrow.textContent=key===state.sortKey?(state.sortDirection==="asc"?"▲":"▼"):"";});}
-    function renderSummary(){const circle=state.data.circle||{},members=state.data.members||[],history=state.data.history||[];const active=members.filter(m=>m.isActive).length,totalMonthly=members.reduce((s,m)=>s+(m.monthly_gain||0),0),totalDaily=members.reduce((s,m)=>s+(m.daily_gain||0),0),totalFans=history.length?history[history.length-1].fan_count:circle.monthly_point||0,monthItem=state.manifest[state.monthIndex];const items=[{label:"Mois",value:monthItem?.label||"—"},{label:"Membres",value:formatNumber(circle.member_count??members.length)},{label:"Actifs",value:formatNumber(active)},{label:"Gain mensuel",value:formatNumber(totalMonthly)},{label:"Gain journalier",value:formatNumber(totalDaily)},{label:"Total fans club",value:formatNumber(totalFans)}];document.getElementById("summary").innerHTML=items.map(item=>`<div class="card summary-item"><div class="label">${item.label}</div><div class="value">${item.value}</div></div>`).join("");}
-    function renderMembers(){const members=state.data.members||[],rankMap=computeRankMap(members),monthKey=state.manifest[state.monthIndex]?.key||"";const rows=members.map(m=>({...m,rankMonthly:rankMap.get(m.trainer_id),status:getStatus(m)}));rows.sort((a,b)=>compareRows(a,b,state.sortKey,state.sortDirection));document.getElementById("membersBody").innerHTML=rows.map(m=>`<tr><td class="rank">#${m.rankMonthly}</td><td class="name"><a href="./member.html?month=${encodeURIComponent(monthKey)}&id=${encodeURIComponent(m.trainer_id)}">${escapeHtml(m.name)}</a>${m.role==="leader"?`<span class="role">Leader</span>`:""}</td><td class="muted">${escapeHtml(m.trainer_id)}</td><td><span class="badge ${m.isActive?"active":"inactive"}">${m.isActive?"Actif":"Inactif"}</span></td><td>${formatNumber(m.monthly_gain)}</td><td>${formatNumber(m.daily_gain)}</td><td>${formatNumber(Math.round(m.seven_day_avg||0))}</td><td>${formatNumber(m.fan_count)}</td><td class="muted">${formatDate(m.last_updated)}</td></tr>`).join("");renderSortArrows();}
-    function renderMonthButtons(){document.getElementById("prevMonthBtn").disabled=state.monthIndex<=0;document.getElementById("nextMonthBtn").disabled=state.monthIndex>=state.manifest.length-1;document.getElementById("monthLabel").textContent=state.manifest[state.monthIndex]?.label||"—";}
-    async function loadManifest(){const r=await fetch("./data/index.json");if(!r.ok)throw new Error("Impossible de charger ./data/index.json");state.manifest=await r.json();if(!Array.isArray(state.manifest)||!state.manifest.length)throw new Error("Le manifest des mois est vide.");}
-    async function loadMonth(index){state.monthIndex=index;const month=state.manifest[index];const r=await fetch(month.file);if(!r.ok)throw new Error(`Impossible de charger ${month.file}`);state.data=await r.json();document.getElementById("pageTitle").textContent=`${state.data.circle?.name||"Club"} — Membres`;document.getElementById("pageSubtitle").textContent=state.data.circle?.last_updated?`Dernière mise à jour : ${formatDate(state.data.circle.last_updated)}`:"";renderMonthButtons();renderSummary();renderMembers();}
-    function setupEvents(){document.getElementById("prevMonthBtn").addEventListener("click",()=>{if(state.monthIndex>0)loadMonth(state.monthIndex-1);});document.getElementById("nextMonthBtn").addEventListener("click",()=>{if(state.monthIndex<state.manifest.length-1)loadMonth(state.monthIndex+1);});document.querySelectorAll("th.sortable").forEach(th=>th.addEventListener("click",()=>{const key=th.dataset.key;if(state.sortKey===key){state.sortDirection=state.sortDirection==="asc"?"desc":"asc";}else{state.sortKey=key;state.sortDirection=(key==="name"||key==="status"||key==="last_updated")?"asc":"desc";}renderMembers();}));}
-    async function init(){setupEvents();await loadManifest();await loadMonth(0);} init().catch(error=>{document.getElementById("pageTitle").textContent="Erreur de chargement";document.getElementById("pageSubtitle").textContent=error.message;console.error(error);});
+    const GOAL = 2000000;
+    const state = { manifest: [], monthIndex: 0, data: null, sortKey: "monthly_gain", sortDirection: "desc" };
+    const nf = new Intl.NumberFormat("fr-FR");
+
+    function formatNumber(value){ return nf.format(Number(value ?? 0)); }
+    function formatDate(value){
+      if(!value) return "—";
+      const d = new Date(value);
+      return new Intl.DateTimeFormat("fr-FR",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(d);
+    }
+    function escapeHtml(value){
+      return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+    function getParams(){ const p=new URLSearchParams(window.location.search); return {month:p.get("month")}; }
+    function getStatus(member){ return member.isActive ? "Actif" : "Inactif"; }
+    function resolveMonthIndex(monthKey){
+      const found = state.manifest.findIndex(item => item.key === monthKey);
+      return found >= 0 ? found : Math.max(0, state.manifest.length - 1);
+    }
+    function computeRankMap(members){
+      const sorted=[...members].sort((a,b)=>{
+        if ((b.monthly_gain ?? 0)!==(a.monthly_gain ?? 0)) return (b.monthly_gain ?? 0)-(a.monthly_gain ?? 0);
+        if ((b.fan_count ?? 0)!==(a.fan_count ?? 0)) return (b.fan_count ?? 0)-(a.fan_count ?? 0);
+        return (a.name ?? "").localeCompare(b.name ?? "","fr",{sensitivity:"base"});
+      });
+      const map = new Map();
+      sorted.forEach((m,i)=>map.set(m.trainer_id,i+1));
+      return map;
+    }
+    function compareRows(a,b,key,direction){
+      const dir = direction === "asc" ? 1 : -1;
+      let av=a[key], bv=b[key];
+      if (key==="status"){ av=getStatus(a); bv=getStatus(b); }
+      if (key==="last_updated"){ av=av?new Date(av).getTime():0; bv=bv?new Date(bv).getTime():0; }
+      if (typeof av === "string" && typeof bv === "string") return av.localeCompare(bv,"fr",{sensitivity:"base"})*dir;
+      return (Number(av ?? 0)-Number(bv ?? 0))*dir;
+    }
+    function renderSortArrows(){
+      document.querySelectorAll("th.sortable").forEach(th=>{
+        const arrow=th.querySelector(".arrow");
+        arrow.textContent = th.dataset.key===state.sortKey ? (state.sortDirection==="asc" ? "▲" : "▼") : "";
+      });
+    }
+    function renderSummary(){
+      const circle = state.data.circle || {};
+      const members = state.data.members || [];
+      const history = state.data.history || [];
+      const totalMonthly = members.reduce((sum,m)=>sum+Number(m.monthly_gain || 0),0);
+      const avgPlayer = members.length ? Math.round(totalMonthly / members.length) : 0;
+      const missed = members.filter(m=>Number(m.monthly_gain || 0) < GOAL).length;
+      const totalFans = history.length ? history[history.length-1].fan_count : (circle.monthly_point || 0);
+      const monthItem = state.manifest[state.monthIndex];
+      const items = [
+        {label:"Mois", value:monthItem?.label || "—"},
+        {label:"Objectif club", value:formatNumber(GOAL)},
+        {label:"Sous l’objectif", value:formatNumber(missed)},
+        {label:"Gain du mois", value:formatNumber(totalMonthly)},
+        {label:"Moyenne/joueur", value:formatNumber(avgPlayer)},
+        {label:"Total fans club", value:formatNumber(totalFans)}
+      ];
+      document.getElementById("summary").innerHTML = items.map(item => `
+        <div class="card summary-item">
+          <div class="label">${item.label}</div>
+          <div class="value">${item.value}</div>
+        </div>`).join("");
+    }
+    function renderMembers(){
+      const members = state.data.members || [];
+      const rankMap = computeRankMap(members);
+      const monthKey = state.manifest[state.monthIndex]?.key || "";
+      const rows = members.map(member => ({...member, rankMonthly:rankMap.get(member.trainer_id), status:getStatus(member)}));
+      rows.sort((a,b)=>compareRows(a,b,state.sortKey,state.sortDirection));
+      document.getElementById("membersBody").innerHTML = rows.map((member,index)=>{
+        const missed = Number(member.monthly_gain || 0) < GOAL;
+        return `
+          <tr class="${missed ? "row-missed" : "row-ok"}" style="--row-delay:${index * 18}ms">
+            <td class="rank">#${member.rankMonthly}</td>
+            <td class="name">
+              <a href="./member_v2.html?month=${encodeURIComponent(monthKey)}&id=${encodeURIComponent(member.trainer_id)}">${escapeHtml(member.name)}</a>
+              ${member.role === "leader" ? '<span class="role">Leader</span>' : ""}
+            </td>
+            <td class="muted">${escapeHtml(member.trainer_id)}</td>
+            <td><span class="badge ${member.isActive ? "active" : "inactive"}">${member.isActive ? "Actif" : "Inactif"}</span></td>
+            <td><span class="goal-value ${missed ? "missed" : "ok"}">${formatNumber(member.monthly_gain)}</span></td>
+            <td>${formatNumber(member.daily_gain)}</td>
+            <td>${formatNumber(Math.round(member.seven_day_avg || 0))}</td>
+            <td>${formatNumber(member.fan_count)}</td>
+            <td class="muted">${formatDate(member.last_updated)}</td>
+          </tr>`;
+      }).join("");
+      renderSortArrows();
+    }
+    function renderMonthButtons(){
+      document.getElementById("prevMonthBtn").disabled = state.monthIndex <= 0;
+      document.getElementById("nextMonthBtn").disabled = state.monthIndex >= state.manifest.length - 1;
+      document.getElementById("monthLabel").textContent = state.manifest[state.monthIndex]?.label || "—";
+    }
+    async function loadManifest(){
+      const res = await fetch("./data/index.json");
+      if (!res.ok) throw new Error("Impossible de charger ./data/index.json");
+      state.manifest = await res.json();
+      if (!Array.isArray(state.manifest) || !state.manifest.length) throw new Error("Le manifest des mois est vide.");
+    }
+    async function loadMonth(index){
+      state.monthIndex = index;
+      const month = state.manifest[index];
+      const res = await fetch(month.file);
+      if (!res.ok) throw new Error("Impossible de charger " + month.file);
+      state.data = await res.json();
+      document.getElementById("pageTitle").textContent = (state.data.circle?.name || "Club") + " — Membres";
+      document.getElementById("pageSubtitle").textContent = state.data.circle?.last_updated ? ("Dernière mise à jour : " + formatDate(state.data.circle.last_updated)) : "";
+      renderMonthButtons(); renderSummary(); renderMembers();
+      const p = new URLSearchParams(window.location.search); p.set("month", month.key);
+      history.replaceState(null,"",window.location.pathname + "?" + p.toString());
+    }
+    function setupEvents(){
+      document.getElementById("prevMonthBtn").addEventListener("click",()=>{ if (state.monthIndex>0) loadMonth(state.monthIndex-1); });
+      document.getElementById("nextMonthBtn").addEventListener("click",()=>{ if (state.monthIndex<state.manifest.length-1) loadMonth(state.monthIndex+1); });
+      document.querySelectorAll("th.sortable").forEach(th=>{
+        th.addEventListener("click",()=>{
+          const key = th.dataset.key;
+          if (state.sortKey===key){ state.sortDirection = state.sortDirection==="asc" ? "desc" : "asc"; }
+          else { state.sortKey=key; state.sortDirection = (key==="name" || key==="status" || key==="last_updated") ? "asc" : "desc"; }
+          renderMembers();
+        });
+      });
+    }
+    async function init(){
+      setupEvents();
+      await loadManifest();
+      await loadMonth(resolveMonthIndex(getParams().month));
+    }
+    init().catch(error=>{
+      document.getElementById("pageTitle").textContent = "Erreur de chargement";
+      document.getElementById("pageSubtitle").textContent = error.message;
+      console.error(error);
+    });
   </script>
+
 </body>
 </html>

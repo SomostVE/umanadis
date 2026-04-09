@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Graph - Uma Musume Club Dashboard</title>
+  <style>
+:root{
+  --bg1:#fff5fb;
+  --bg2:#eef7ff;
+  --panel:rgba(255,255,255,.88);
+  --panel-strong:#ffffff;
+  --border:#dbe7ff;
+  --text:#294064;
+  --muted:#6e85ad;
+  --pink:#ff77b7;
+  --pink-soft:#ffd8ea;
+  --blue:#6fa8ff;
+  --blue-soft:#deedff;
+  --yellow:#ffd86b;
+  --yellow-soft:#fff4c8;
+  --mint:#66d6b8;
+  --mint-soft:#d9fff4;
+  --danger:#ff7b9c;
+  --danger-soft:#ffe2ea;
+  --shadow:0 12px 40px rgba(122,147,201,.16);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255,119,183,.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(111,168,255,.18), transparent 30%),
+    linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 100%);
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.35), transparent 35%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 18px, rgba(255,255,255,0) 18px 36px);
+  opacity:.35;
+}
+.container{
+  position:relative;
+  z-index:1;
+  width:min(1480px, calc(100% - 24px));
+  margin:24px auto 40px;
+}
+.header{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+  animation:fadeUp .55s ease both;
+}
+h1{
+  margin:0 0 8px;
+  font-size:32px;
+  line-height:1.08;
+  letter-spacing:-.02em;
+}
+.subtitle{
+  color:var(--muted);
+  margin:0;
+  font-size:15px;
+}
+.top-links{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.top-links a,.ghost-btn,.seg button,.month-nav button,.select-wrap select{
+  text-decoration:none;
+  color:var(--text);
+  background:rgba(255,255,255,.78);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px 14px;
+  font-weight:700;
+  box-shadow:var(--shadow);
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+}
+.top-links a:hover,.ghost-btn:hover,.seg button:hover,.month-nav button:hover:not(:disabled),.select-wrap select:hover{
+  transform:translateY(-2px);
+  box-shadow:0 16px 40px rgba(122,147,201,.22);
+  border-color:#bfd5ff;
+  background:#fff;
+}
+.top-links a.active,.seg button.active{
+  background:linear-gradient(135deg, #ffffff 0%, var(--blue-soft) 100%);
+  border-color:#b9d3ff;
+}
+.card{
+  background:var(--panel);
+  backdrop-filter: blur(10px);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  animation:fadeUp .55s ease both;
+}
+.month-nav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:14px;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.month-nav button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+.month-label{
+  min-width:230px;
+  text-align:center;
+  font-size:18px;
+  font-weight:900;
+  color:#3a5f93;
+}
+.summary{
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0,1fr));
+  gap:12px;
+  margin-bottom:16px;
+}
+.summary.compact4{grid-template-columns:repeat(4, minmax(0,1fr))}
+.summary-item{
+  padding:18px;
+  position:relative;
+  overflow:hidden;
+}
+.summary-item::after{
+  content:"";
+  position:absolute;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,255,255,0));
+  right:-20px;
+  top:-20px;
+}
+.summary-item .label{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  font-weight:800;
+}
+.summary-item .value{
+  font-size:25px;
+  font-weight:900;
+  line-height:1.1;
+  overflow-wrap:anywhere;
+}
+.summary-item:nth-child(1){background:linear-gradient(135deg,#fff,#f7fbff)}
+.summary-item:nth-child(2){background:linear-gradient(135deg,#fffaf1,#fff)}
+.summary-item:nth-child(3){background:linear-gradient(135deg,#fff2f8,#fff)}
+.summary-item:nth-child(4){background:linear-gradient(135deg,#f3fff9,#fff)}
+.summary-item:nth-child(5){background:linear-gradient(135deg,#f3f8ff,#fff)}
+.summary-item:nth-child(6){background:linear-gradient(135deg,#fff8fb,#fff)}
+.legend{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:0 0 14px;
+  animation:fadeUp .6s ease both;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  background:rgba(255,255,255,.74);
+  border:1px solid var(--border);
+  border-radius:999px;
+  font-weight:800;
+  color:#5576a7;
+  box-shadow:var(--shadow);
+}
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+}
+.table-wrap{overflow-x:auto}
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  min-width:980px;
+}
+th, td{
+  padding:13px 12px;
+  border-bottom:1px solid #e7efff;
+  text-align:left;
+  vertical-align:middle;
+  font-size:14px;
+  background:transparent;
+}
+th{
+  font-size:13px;
+  color:#5d7fb0;
+  white-space:normal;
+  line-height:1.25;
+  word-break:break-word;
+  font-weight:900;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  background:rgba(245,249,255,.95);
+}
+th:first-child{border-top-left-radius:20px}
+th:last-child{border-top-right-radius:20px}
+th.sortable{cursor:pointer;user-select:none}
+th .arrow{margin-left:6px;color:#90a8d2;font-size:11px}
+tbody tr{
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  animation:fadeUp .45s ease both;
+  animation-delay:var(--row-delay,0ms);
+}
+tbody tr:hover{
+  background:rgba(255,255,255,.55);
+  transform:translateY(-1px);
+}
+.rank{
+  font-weight:900;
+  color:#547bb0;
+}
+.name{font-weight:900}
+.name a{
+  color:#2c64b2;
+  text-decoration:none;
+}
+.name a:hover{text-decoration:underline}
+.muted{color:var(--muted)}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid transparent;
+}
+.badge.active{
+  background:var(--mint-soft);
+  color:#1f8f74;
+  border-color:#b2f0de;
+}
+.badge.inactive{
+  background:var(--danger-soft);
+  color:#bf5574;
+  border-color:#ffc4d4;
+}
+.row-ok td{
+  background:linear-gradient(90deg, rgba(217,255,244,.55), rgba(255,255,255,0) 22%);
+}
+.row-missed td{
+  background:linear-gradient(90deg, rgba(255,226,234,.95), rgba(255,255,255,0) 30%);
+  border-bottom-color:#ffd5df;
+}
+.row-ok td:first-child{border-left:5px solid var(--mint)}
+.row-missed td:first-child{border-left:5px solid var(--danger)}
+.role{
+  display:inline-block;
+  margin-left:8px;
+  color:#ff77b7;
+  font-size:12px;
+  font-weight:900;
+}
+.goal-value.missed{color:#c45472}
+.goal-value.ok{color:#1f8f74}
+.controls{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+  align-items:center;
+  animation:fadeUp .6s ease both;
+}
+.seg{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.select-wrap select{
+  padding-right:34px;
+  appearance:none;
+}
+.chart-card{padding:18px}
+.chart-shell{
+  min-height:520px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.chart-shell svg{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.chart-legend{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 12px;
+  margin-top:14px;
+}
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,.72);
+  font-weight:700;
+  color:#5576a7;
+}
+.legend-swatch{
+  width:12px;
+  height:12px;
+  border-radius:4px;
+  flex:0 0 auto;
+}
+.note{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:10px;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes growBar{
+  from{transform:scaleY(0);transform-origin:bottom}
+  to{transform:scaleY(1);transform-origin:bottom}
+}
+@keyframes popIn{
+  from{opacity:0;transform:scale(.9)}
+  to{opacity:1;transform:scale(1)}
+}
+.bar-anim{animation:growBar .65s ease both}
+.slice-anim{animation:popIn .45s ease both}
+.empty{
+  padding:24px;
+  color:var(--muted);
+}
+@media (max-width:1100px){
+  .summary{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .summary.compact4{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .chart-legend{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .summary,.summary.compact4{grid-template-columns:1fr}
+  h1{font-size:25px}
+  .container{width:min(100%, calc(100% - 16px))}
+  table{min-width:840px}
+  .chart-shell{min-height:420px}
+}
+</style>
+</head>
+<body>
+
+  <div class="container" style="width:min(1420px, calc(100% - 24px));">
+    <div class="header">
+      <div>
+        <h1 id="pageTitle">Graph</h1>
+        <p class="subtitle" id="pageSubtitle">Chargement…</p>
+      </div>
+      <div class="top-links">
+        <a href="./index_v2.html">Membres</a>
+        <a href="./total_v3.html">Totaux</a>
+        <a class="active" href="./graph.html">Graph</a>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="seg">
+        <button id="scopeMonthBtn" class="active">Par mois</button>
+        <button id="scopeTotalBtn">Total</button>
+      </div>
+      <div class="seg">
+        <button id="typeBarBtn" class="active">Barres</button>
+        <button id="typePieBtn">Camembert</button>
+      </div>
+      <div class="select-wrap">
+        <select id="monthSelect"></select>
+      </div>
+    </div>
+
+    <div class="summary compact4" id="summary"></div>
+
+    <div class="card chart-card">
+      <div class="chart-shell" id="chartShell"></div>
+      <div class="chart-legend" id="chartLegend"></div>
+      <div class="note" id="chartNote"></div>
+    </div>
+  </div>
+
+  <script>
+    const state = { manifest: [], datasets: [], scope: "month", type: "bar", monthIndex: 0 };
+    const nf = new Intl.NumberFormat("fr-FR");
+    const palette = ["#ff77b7","#6fa8ff","#ffd86b","#66d6b8","#b894ff","#ff9c7a","#7dd3fc","#f9a8d4","#93c5fd","#86efac","#fde68a","#c4b5fd"];
+    function formatNumber(value){ return nf.format(Number(value ?? 0)); }
+    function escapeHtml(value){ return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+
+    async function loadData(){
+      const manifestResponse = await fetch("./data/index.json");
+      if (!manifestResponse.ok) throw new Error("Impossible de charger ./data/index.json");
+      state.manifest = await manifestResponse.json();
+      if (!Array.isArray(state.manifest) || !state.manifest.length) throw new Error("Le manifest des mois est vide.");
+      state.datasets = await Promise.all(state.manifest.map(async month => {
+        const response = await fetch(month.file);
+        if (!response.ok) throw new Error("Impossible de charger " + month.file);
+        return { meta: month, data: await response.json() };
+      }));
+      state.monthIndex = Math.max(0, state.manifest.length - 1);
+      document.getElementById("monthSelect").innerHTML = state.manifest.map((month,index)=>`<option value="${index}">${escapeHtml(month.label)}</option>`).join("");
+      document.getElementById("monthSelect").value = String(state.monthIndex);
+    }
+    function aggregateTotalMembers(){
+      const map = new Map();
+      state.datasets.forEach(item => {
+        (item.data.members || []).forEach(member => {
+          const key = String(member.trainer_id);
+          const existing = map.get(key) || { id:key, label:member.name, value:0 };
+          existing.label = member.name || existing.label;
+          existing.value += Number(member.monthly_gain || 0);
+          map.set(key, existing);
+        });
+      });
+      return [...map.values()].sort((a,b)=>b.value-a.value);
+    }
+    function getCurrentDataset(){
+      if (state.scope === "month"){
+        const item = state.datasets[state.monthIndex];
+        const rows = (item.data.members || []).map(member => ({
+          id:String(member.trainer_id),
+          label:member.name,
+          value:Number(member.monthly_gain || 0)
+        })).sort((a,b)=>b.value-a.value);
+        const totalGain = rows.reduce((sum,row)=>sum+row.value,0);
+        const avgPlayer = rows.length ? Math.round(totalGain / rows.length) : 0;
+        return { title:item.meta.label, rows, totalGain, avgPlayer };
+      }
+      const rows = aggregateTotalMembers();
+      const totalGain = rows.reduce((sum,row)=>sum+row.value,0);
+      const avgPlayer = rows.length ? Math.round(totalGain / rows.length) : 0;
+      return { title:"Tous les mois", rows, totalGain, avgPlayer };
+    }
+    function renderSummary(dataset){
+      const top = dataset.rows[0];
+      const items = [
+        {label:"Vue", value: state.scope === "month" ? dataset.title : "Total"},
+        {label:"Gain affiché", value: formatNumber(dataset.totalGain)},
+        {label:"Moyenne / joueur", value: formatNumber(dataset.avgPlayer)},
+        {label:"Top joueur", value: top ? top.label : "—"}
+      ];
+      document.getElementById("summary").innerHTML = items.map(item => `<div class="card summary-item"><div class="label">${item.label}</div><div class="value">${item.value}</div></div>`).join("");
+    }
+    function renderBarChart(rows){
+      const topRows = rows.slice(0, 15);
+      const max = Math.max(...topRows.map(r=>r.value), 1);
+      const width = 1100, height = 480, left = 70, right = 20, top = 20, bottom = 110;
+      const plotW = width - left - right, plotH = height - top - bottom;
+      const step = plotW / Math.max(topRows.length,1), barW = Math.max(18, step * 0.56);
+      const bars = topRows.map((row,index)=>{
+        const x = left + index * step + (step - barW) / 2;
+        const h = Math.max(4, (row.value / max) * plotH);
+        const y = top + (plotH - h);
+        const color = palette[index % palette.length];
+        const label = row.label.length > 12 ? row.label.slice(0,12) + "…" : row.label;
+        return `<g class="bar-anim" style="animation-delay:${index * 35}ms">
+          <rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="10" fill="${color}" opacity=".92"></rect>
+          <text x="${x + barW/2}" y="${height - 68}" text-anchor="end" transform="rotate(-32 ${x + barW/2} ${height - 68})" font-size="13" fill="#5878ab" font-weight="700">${escapeHtml(label)}</text>
+          <text x="${x + barW/2}" y="${y - 8}" text-anchor="middle" font-size="12" fill="#5477ac" font-weight="800">${formatNumber(row.value)}</text>
+        </g>`;
+      }).join("");
+      const grid = [0,.25,.5,.75,1].map(v=>{
+        const y = top + plotH - plotH * v;
+        const label = formatNumber(Math.round(max * v));
+        return `<line x1="${left}" y1="${y}" x2="${width-right}" y2="${y}" stroke="#e3edff" stroke-width="1"/><text x="${left-12}" y="${y+4}" text-anchor="end" font-size="12" fill="#8aa2cc">${label}</text>`;
+      }).join("");
+      return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Graphique en barres">${grid}${bars}</svg>`;
+    }
+    function polarToCartesian(cx, cy, r, angleDeg){
+      const rad = (angleDeg - 90) * Math.PI / 180.0;
+      return { x: cx + (r * Math.cos(rad)), y: cy + (r * Math.sin(rad)) };
+    }
+    function describeArc(cx, cy, r, startAngle, endAngle){
+      const start = polarToCartesian(cx, cy, r, endAngle);
+      const end = polarToCartesian(cx, cy, r, startAngle);
+      const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+      return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y} Z`;
+    }
+    function renderPieChart(rows){
+      const topRows = rows.slice(0, 10);
+      const rest = rows.slice(10).reduce((sum,row)=>sum+row.value,0);
+      if (rest > 0) topRows.push({label:"Autres", value:rest});
+      const total = Math.max(topRows.reduce((sum,row)=>sum+row.value,0),1);
+      const width = 920, height = 500, cx = 300, cy = 250, radius = 165;
+      let current = 0;
+      const slices = topRows.map((row,index)=>{
+        const angle = (row.value / total) * 360;
+        const start = current;
+        const end = current + angle;
+        current = end;
+        const color = palette[index % palette.length];
+        return `<path class="slice-anim" d="${describeArc(cx, cy, radius, start, end)}" fill="${color}" opacity=".95" style="animation-delay:${index * 55}ms"></path>`;
+      }).join("");
+      return {
+        svg: `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Camembert">
+          <circle cx="${cx}" cy="${cy}" r="${radius + 18}" fill="rgba(255,255,255,.55)"></circle>
+          ${slices}
+          <circle cx="${cx}" cy="${cy}" r="76" fill="white"></circle>
+          <text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="16" fill="#6b87b3" font-weight="800">Total</text>
+          <text x="${cx}" y="${cy + 24}" text-anchor="middle" font-size="24" fill="#2c4b7d" font-weight="900">${formatNumber(total)}</text>
+        </svg>`,
+        legendRows: topRows
+      };
+    }
+    function renderLegend(rows){
+      document.getElementById("chartLegend").innerHTML = rows.map((row,index)=>`<div class="legend-item"><span class="legend-swatch" style="background:${palette[index % palette.length]}"></span><span>${escapeHtml(row.label)} — ${formatNumber(row.value)}</span></div>`).join("");
+    }
+    function render(){
+      const dataset = getCurrentDataset();
+      renderSummary(dataset);
+      document.getElementById("monthSelect").style.display = state.scope === "month" ? "inline-flex" : "none";
+      document.getElementById("scopeMonthBtn").classList.toggle("active", state.scope === "month");
+      document.getElementById("scopeTotalBtn").classList.toggle("active", state.scope === "total");
+      document.getElementById("typeBarBtn").classList.toggle("active", state.type === "bar");
+      document.getElementById("typePieBtn").classList.toggle("active", state.type === "pie");
+      const shell = document.getElementById("chartShell");
+      const note = document.getElementById("chartNote");
+      if (state.type === "bar"){
+        shell.innerHTML = renderBarChart(dataset.rows);
+        renderLegend(dataset.rows.slice(0, 8));
+        note.textContent = "Barres : top 15 joueurs affichés.";
+      } else {
+        const pie = renderPieChart(dataset.rows);
+        shell.innerHTML = pie.svg;
+        renderLegend(pie.legendRows);
+        note.textContent = "Camembert : top 10 joueurs, le reste est regroupé dans “Autres”.";
+      }
+      document.getElementById("pageSubtitle").textContent = state.scope === "month"
+        ? ("Vue " + dataset.title + " — monthly gain par joueur")
+        : "Agrégation de tous les mois — monthly gain cumulé par joueur";
+    }
+    function setupEvents(){
+      document.getElementById("scopeMonthBtn").addEventListener("click",()=>{ state.scope="month"; render(); });
+      document.getElementById("scopeTotalBtn").addEventListener("click",()=>{ state.scope="total"; render(); });
+      document.getElementById("typeBarBtn").addEventListener("click",()=>{ state.type="bar"; render(); });
+      document.getElementById("typePieBtn").addEventListener("click",()=>{ state.type="pie"; render(); });
+      document.getElementById("monthSelect").addEventListener("change",e=>{ state.monthIndex = Number(e.target.value); render(); });
+    }
+    async function init(){ setupEvents(); await loadData(); render(); }
+    init().catch(error=>{
+      document.getElementById("pageTitle").textContent = "Erreur de chargement";
+      document.getElementById("pageSubtitle").textContent = error.message;
+      console.error(error);
+    });
+  </script>
+
+</body>
+</html>

@@ -1,5 +1,17 @@
 [
-  { "key": "2025-11", "label": "Novembre 2025", "file": "data/months/2025-11.json" },
-  { "key": "2025-12", "label": "Décembre 2025", "file": "data/months/2025-12.json" },
-  { "key": "2026-01", "label": "Janvier 2026", "file": "data/months/2026-01.json" }
+  {
+    "key": "2025-11",
+    "label": "Novembre 2025",
+    "file": "./data/months/2025-11.json"
+  },
+  {
+    "key": "2025-12",
+    "label": "Décembre 2025",
+    "file": "./data/months/2025-12.json"
+  },
+    {
+    "key": "2026-01",
+    "label": "Janvier 2026",
+    "file": "./data/months/2026-01.json"
+  }
 ]

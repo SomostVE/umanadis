@@ -12,7 +12,8 @@
   --panel-strong:#ffffff;
   --border:#dbe7ff;
   --text:#294064;
-  --muted:#6e85ad;
+  --text-strong:#1f3659;
+  --muted:#425f8e;
   --pink:#ff77b7;
   --pink-soft:#ffd8ea;
   --blue:#6fa8ff;
@@ -40,7 +41,8 @@ body::before{
   position:fixed;
   inset:0;
   pointer-events:none;
-  opacity:.35;
+  opacity:.2;
+  background:linear-gradient(rgba(255,255,255,.06), rgba(255,255,255,.1));
 }
 .container{
   position:relative;
@@ -62,11 +64,15 @@ h1{
   font-size:32px;
   line-height:1.08;
   letter-spacing:-.02em;
+  color:var(--text-strong);
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
 }
 .subtitle{
-  color:var(--muted);
+  color:var(--text-strong);
   margin:0;
   font-size:15px;
+  font-weight:700;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
 }
 .top-links{
   display:flex;
@@ -75,12 +81,12 @@ h1{
 }
 .top-links a,.seg button,.select-wrap select{
   text-decoration:none;
-  color:var(--text);
-  background:rgba(255,255,255,.78);
+  color:var(--text-strong);
+  background:rgba(255,255,255,.82);
   border:1px solid var(--border);
   border-radius:14px;
   padding:10px 14px;
-  font-weight:700;
+  font-weight:800;
   box-shadow:var(--shadow);
   transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
 }
@@ -109,7 +115,7 @@ h1{
   margin-bottom:12px;
 }
 .scope-card{
-  padding:16px;
+  padding:18px;
   cursor:pointer;
   transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
 }
@@ -122,14 +128,9 @@ h1{
   background:linear-gradient(135deg, rgba(255,255,255,.95) 0%, var(--blue-soft) 100%);
 }
 .scope-title{
-  font-size:17px;
+  font-size:18px;
   font-weight:900;
-  margin-bottom:6px;
-}
-.scope-desc{
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.45;
+  color:var(--text-strong);
 }
 .submenu-row{
   display:flex;
@@ -142,7 +143,7 @@ h1{
 .submenu-title{
   font-size:13px;
   font-weight:900;
-  color:var(--muted);
+  color:var(--text-strong);
   text-transform:uppercase;
   letter-spacing:.04em;
 }
@@ -159,7 +160,7 @@ h1{
 .select-wrap label{
   font-size:13px;
   font-weight:900;
-  color:var(--muted);
+  color:var(--text-strong);
   text-transform:uppercase;
   letter-spacing:.04em;
 }
@@ -201,12 +202,16 @@ h1{
   font-weight:900;
   line-height:1.1;
   overflow-wrap:anywhere;
+  color:var(--text-strong);
 }
 .summary-item:nth-child(1){background:linear-gradient(135deg,#fff,#f7fbff)}
 .summary-item:nth-child(2){background:linear-gradient(135deg,#fffaf1,#fff)}
 .summary-item:nth-child(3){background:linear-gradient(135deg,#fff2f8,#fff)}
 .summary-item:nth-child(4){background:linear-gradient(135deg,#f3fff9,#fff)}
-.chart-card{padding:18px}
+.chart-card{
+  padding:18px;
+  position:relative;
+}
 .chart-shell{
   min-height:520px;
   display:flex;
@@ -232,9 +237,9 @@ h1{
   padding:8px 10px;
   border:1px solid var(--border);
   border-radius:12px;
-  background:rgba(255,255,255,.72);
+  background:rgba(255,255,255,.78);
   font-weight:700;
-  color:#5576a7;
+  color:#365784;
 }
 .legend-swatch{
   width:12px;
@@ -246,9 +251,38 @@ h1{
   color:var(--muted);
   font-size:13px;
   margin-top:10px;
+  min-height:0;
 }
 .hidden{
   display:none !important;
+}
+.chart-tooltip{
+  position:fixed;
+  z-index:1000;
+  pointer-events:none;
+  background:rgba(29,47,77,.96);
+  color:#fff;
+  border-radius:12px;
+  padding:10px 12px;
+  box-shadow:0 14px 28px rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);
+  min-width:170px;
+  opacity:0;
+  transform:translateY(6px);
+  transition:opacity .12s ease, transform .12s ease;
+}
+.chart-tooltip.show{
+  opacity:1;
+  transform:translateY(0);
+}
+.chart-tooltip .tt-title{
+  font-weight:900;
+  font-size:13px;
+  margin-bottom:5px;
+}
+.chart-tooltip .tt-line{
+  font-size:12px;
+  opacity:.95;
 }
 @keyframes fadeUp{
   from{opacity:0;transform:translateY(10px)}
@@ -297,11 +331,9 @@ h1{
     <div class="scope-grid">
       <div class="card scope-card active" id="scopeMonthCard" role="button" tabindex="0">
         <div class="scope-title">Par mois</div>
-        <div class="scope-desc">Une seule période à la fois. Cette vue débloque le sous-menu de sélection du mois.</div>
       </div>
       <div class="card scope-card" id="scopeTotalCard" role="button" tabindex="0">
         <div class="scope-title">Total cumulé</div>
-        <div class="scope-desc">Additionne tous les mois disponibles pour afficher les performances globales.</div>
       </div>
     </div>
 
@@ -330,12 +362,19 @@ h1{
     </div>
   </div>
 
+  <div class="chart-tooltip" id="chartTooltip">
+    <div class="tt-title" id="tooltipTitle"></div>
+    <div class="tt-line" id="tooltipValue"></div>
+    <div class="tt-line" id="tooltipPercent"></div>
+  </div>
+
   <script>
     const state = { manifest: [], datasets: [], scope: "month", type: "bar", monthIndex: 0 };
     const nf = new Intl.NumberFormat("fr-FR");
-    const palette = ["#ff77b7","#6fa8ff","#ffd86b","#66d6b8","#b894ff","#ff9c7a","#7dd3fc","#f9a8d4","#93c5fd","#86efac","#fde68a","#c4b5fd"];
+    const palette = ["#ff77b7","#6fa8ff","#ffd86b","#66d6b8","#b894ff","#ff9c7a","#7dd3fc","#f9a8d4","#93c5fd","#86efac","#fde68a","#c4b5fd","#ffb86b","#7dd3a7","#a5b4fc","#fca5a5","#67e8f9","#c4f1be","#f9a8d4","#d8b4fe"];
 
     function formatNumber(value){ return nf.format(Number(value ?? 0)); }
+    function formatPercent(value){ return (Math.round(value * 10) / 10).toLocaleString("fr-FR") + " %"; }
     function escapeHtml(value){ return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
 
     async function loadData(){
@@ -400,11 +439,12 @@ h1{
     }
 
     function renderBarChart(rows){
-      const topRows = rows.slice(0, 15);
+      const topRows = rows.slice(0, 20);
+      const total = topRows.reduce((sum,row)=>sum+row.value,0);
       const max = Math.max(...topRows.map(r=>r.value), 1);
-      const width = 1100, height = 480, left = 70, right = 20, top = 20, bottom = 110;
+      const width = 1220, height = 520, left = 72, right = 20, top = 24, bottom = 130;
       const plotW = width - left - right, plotH = height - top - bottom;
-      const step = plotW / Math.max(topRows.length,1), barW = Math.max(18, step * 0.56);
+      const step = plotW / Math.max(topRows.length,1), barW = Math.max(16, step * 0.52);
 
       const bars = topRows.map((row,index)=>{
         const x = left + index * step + (step - barW) / 2;
@@ -412,17 +452,17 @@ h1{
         const y = top + (plotH - h);
         const color = palette[index % palette.length];
         const label = row.label.length > 12 ? row.label.slice(0,12) + "…" : row.label;
-        return `<g class="bar-anim" style="animation-delay:${index * 35}ms">
-          <rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="10" fill="${color}" opacity=".92"></rect>
-          <text x="${x + barW/2}" y="${height - 68}" text-anchor="end" transform="rotate(-32 ${x + barW/2} ${height - 68})" font-size="13" fill="#5878ab" font-weight="700">${escapeHtml(label)}</text>
-          <text x="${x + barW/2}" y="${y - 8}" text-anchor="middle" font-size="12" fill="#5477ac" font-weight="800">${formatNumber(row.value)}</text>
+        const pct = total ? (row.value / total) * 100 : 0;
+        return `<g class="bar-anim" style="animation-delay:${index * 28}ms">
+          <rect class="chart-hover" data-title="${escapeHtml(row.label)}" data-value="${formatNumber(row.value)}" data-percent="${formatPercent(pct)}" x="${x}" y="${y}" width="${barW}" height="${h}" rx="10" fill="${color}" opacity=".92"></rect>
+          <text x="${x + barW/2}" y="${height - 72}" text-anchor="end" transform="rotate(-32 ${x + barW/2} ${height - 72})" font-size="13" fill="#385b89" font-weight="700">${escapeHtml(label)}</text>
         </g>`;
       }).join("");
 
       const grid = [0,.25,.5,.75,1].map(v=>{
         const y = top + plotH - plotH * v;
         const label = formatNumber(Math.round(max * v));
-        return `<line x1="${left}" y1="${y}" x2="${width-right}" y2="${y}" stroke="#e3edff" stroke-width="1"/><text x="${left-12}" y="${y+4}" text-anchor="end" font-size="12" fill="#8aa2cc">${label}</text>`;
+        return `<line x1="${left}" y1="${y}" x2="${width-right}" y2="${y}" stroke="#dce8ff" stroke-width="1"/><text x="${left-12}" y="${y+4}" text-anchor="end" font-size="12" fill="#708dbd">${label}</text>`;
       }).join("");
 
       return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Graphique en barres">${grid}${bars}</svg>`;
@@ -441,11 +481,11 @@ h1{
     }
 
     function renderPieChart(rows){
-      const topRows = rows.slice(0, 10);
-      const rest = rows.slice(10).reduce((sum,row)=>sum+row.value,0);
+      const topRows = rows.slice(0, 18);
+      const rest = rows.slice(18).reduce((sum,row)=>sum+row.value,0);
       if (rest > 0) topRows.push({label:"Autres", value:rest});
       const total = Math.max(topRows.reduce((sum,row)=>sum+row.value,0),1);
-      const width = 920, height = 500, cx = 300, cy = 250, radius = 165;
+      const width = 980, height = 560, cx = 330, cy = 280, radius = 175;
       let current = 0;
 
       const slices = topRows.map((row,index)=>{
@@ -454,16 +494,17 @@ h1{
         const end = current + angle;
         current = end;
         const color = palette[index % palette.length];
-        return `<path class="slice-anim" d="${describeArc(cx, cy, radius, start, end)}" fill="${color}" opacity=".95" style="animation-delay:${index * 55}ms"></path>`;
+        const pct = (row.value / total) * 100;
+        return `<path class="slice-anim chart-hover" data-title="${escapeHtml(row.label)}" data-value="${formatNumber(row.value)}" data-percent="${formatPercent(pct)}" d="${describeArc(cx, cy, radius, start, end)}" fill="${color}" opacity=".95" style="animation-delay:${index * 45}ms"></path>`;
       }).join("");
 
       return {
         svg: `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Camembert">
           <circle cx="${cx}" cy="${cy}" r="${radius + 18}" fill="rgba(255,255,255,.55)"></circle>
           ${slices}
-          <circle cx="${cx}" cy="${cy}" r="76" fill="white"></circle>
-          <text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="16" fill="#6b87b3" font-weight="800">Total</text>
-          <text x="${cx}" y="${cy + 24}" text-anchor="middle" font-size="24" fill="#2c4b7d" font-weight="900">${formatNumber(total)}</text>
+          <circle cx="${cx}" cy="${cy}" r="86" fill="white"></circle>
+          <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="16" fill="#5977a6" font-weight="800">Total</text>
+          <text x="${cx}" y="${cy + 24}" text-anchor="middle" font-size="24" fill="#1f3659" font-weight="900">${formatNumber(total)}</text>
         </svg>`,
         legendRows: topRows
       };
@@ -481,6 +522,31 @@ h1{
       document.getElementById("typePieBtn").classList.toggle("active", state.type === "pie");
     }
 
+    function bindTooltip(){
+      const tooltip = document.getElementById("chartTooltip");
+      const ttTitle = document.getElementById("tooltipTitle");
+      const ttValue = document.getElementById("tooltipValue");
+      const ttPercent = document.getElementById("tooltipPercent");
+
+      document.querySelectorAll(".chart-hover").forEach(el => {
+        el.addEventListener("mouseenter", () => {
+          ttTitle.textContent = el.dataset.title || "";
+          ttValue.textContent = "Valeur : " + (el.dataset.value || "0");
+          ttPercent.textContent = "Part : " + (el.dataset.percent || "0 %");
+          tooltip.classList.add("show");
+        });
+
+        el.addEventListener("mousemove", (e) => {
+          tooltip.style.left = (e.clientX + 18) + "px";
+          tooltip.style.top = (e.clientY + 18) + "px";
+        });
+
+        el.addEventListener("mouseleave", () => {
+          tooltip.classList.remove("show");
+        });
+      });
+    }
+
     function render(){
       const dataset = getCurrentDataset();
       renderScopeUI();
@@ -491,14 +557,16 @@ h1{
 
       if (state.type === "bar"){
         shell.innerHTML = renderBarChart(dataset.rows);
-        renderLegend(dataset.rows.slice(0, 8));
-        note.textContent = "Barres : top 15 joueurs affichés.";
+        renderLegend(dataset.rows.slice(0, 10));
+        note.textContent = "";
       } else {
         const pie = renderPieChart(dataset.rows);
         shell.innerHTML = pie.svg;
         renderLegend(pie.legendRows);
-        note.textContent = "Camembert : top 10 joueurs, le reste est regroupé dans “Autres”.";
+        note.textContent = "";
       }
+
+      bindTooltip();
 
       document.getElementById("pageSubtitle").textContent = state.scope === "month"
         ? ("Vue " + dataset.title + " — monthly gain par joueur")

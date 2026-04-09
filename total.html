@@ -6,23 +6,12 @@
   <title>Totaux mensuels - Uma Musume Club</title>
   <style>
 :root{
-  --bg1:#fff5fb;
-  --bg2:#eef7ff;
   --panel:rgba(255,255,255,.88);
-  --panel-strong:#ffffff;
   --border:#dbe7ff;
   --text:#294064;
-  --muted:#6e85ad;
-  --pink:#ff77b7;
-  --pink-soft:#ffd8ea;
-  --blue:#6fa8ff;
+  --text-strong:#1f3659;
+  --muted:#4a648f;
   --blue-soft:#deedff;
-  --yellow:#ffd86b;
-  --yellow-soft:#fff4c8;
-  --mint:#66d6b8;
-  --mint-soft:#d9fff4;
-  --danger:#ff7b9c;
-  --danger-soft:#ffe2ea;
   --shadow:0 12px 40px rgba(122,147,201,.16);
 }
 *{box-sizing:border-box}
@@ -31,21 +20,13 @@ body{
   min-height:100vh;
   color:var(--text);
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  background:
-   url('./assets/images/fond.png');
+  background:url('./assets/images/fond.png') center center / cover fixed no-repeat;
   overflow-x:hidden;
-}
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  opacity:.35;
 }
 .container{
   position:relative;
   z-index:1;
-  width:min(1480px, calc(100% - 24px));
+  width:min(1320px, calc(100% - 24px));
   margin:24px auto 40px;
 }
 .header{
@@ -62,35 +43,37 @@ h1{
   font-size:32px;
   line-height:1.08;
   letter-spacing:-.02em;
+  color:var(--text-strong);
 }
 .subtitle{
-  color:var(--muted);
+  color:var(--text-strong);
   margin:0;
   font-size:15px;
+  font-weight:700;
 }
 .top-links{
   display:flex;
   gap:10px;
   flex-wrap:wrap;
 }
-.top-links a,.ghost-btn,.seg button,.month-nav button,.select-wrap select{
+.top-links a{
   text-decoration:none;
-  color:var(--text);
-  background:rgba(255,255,255,.78);
+  color:var(--text-strong);
+  background:rgba(255,255,255,.82);
   border:1px solid var(--border);
   border-radius:14px;
   padding:10px 14px;
-  font-weight:700;
+  font-weight:800;
   box-shadow:var(--shadow);
   transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
 }
-.top-links a:hover,.ghost-btn:hover,.seg button:hover,.month-nav button:hover:not(:disabled),.select-wrap select:hover{
+.top-links a:hover{
   transform:translateY(-2px);
   box-shadow:0 16px 40px rgba(122,147,201,.22);
   border-color:#bfd5ff;
   background:#fff;
 }
-.top-links a.active,.seg button.active{
+.top-links a.active{
   background:linear-gradient(135deg, #ffffff 0%, var(--blue-soft) 100%);
   border-color:#b9d3ff;
 }
@@ -102,35 +85,12 @@ h1{
   box-shadow:var(--shadow);
   animation:fadeUp .55s ease both;
 }
-.month-nav{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  padding:14px;
-  margin-bottom:16px;
-  flex-wrap:wrap;
-}
-.month-nav button:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow:none;
-}
-.month-label{
-  min-width:230px;
-  text-align:center;
-  font-size:18px;
-  font-weight:900;
-  color:#3a5f93;
-}
 .summary{
   display:grid;
-  grid-template-columns:repeat(6, minmax(0,1fr));
+  grid-template-columns:repeat(4, minmax(0,1fr));
   gap:12px;
   margin-bottom:16px;
 }
-.summary.compact4{grid-template-columns:repeat(4, minmax(0,1fr))}
 .summary-item{
   padding:18px;
   position:relative;
@@ -155,222 +115,104 @@ h1{
   font-weight:800;
 }
 .summary-item .value{
-  font-size:25px;
+  font-size:26px;
   font-weight:900;
   line-height:1.1;
   overflow-wrap:anywhere;
+  color:var(--text-strong);
 }
 .summary-item:nth-child(1){background:linear-gradient(135deg,#fff,#f7fbff)}
 .summary-item:nth-child(2){background:linear-gradient(135deg,#fffaf1,#fff)}
 .summary-item:nth-child(3){background:linear-gradient(135deg,#fff2f8,#fff)}
 .summary-item:nth-child(4){background:linear-gradient(135deg,#f3fff9,#fff)}
-.summary-item:nth-child(5){background:linear-gradient(135deg,#f3f8ff,#fff)}
-.summary-item:nth-child(6){background:linear-gradient(135deg,#fff8fb,#fff)}
-.legend{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin:0 0 14px;
-  animation:fadeUp .6s ease both;
+.table-wrap{
+  overflow-x:auto;
+  overflow-y:visible;
 }
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:9px 12px;
-  background:rgba(255,255,255,.74);
-  border:1px solid var(--border);
-  border-radius:999px;
-  font-weight:800;
-  color:#5576a7;
-  box-shadow:var(--shadow);
-}
-.dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  display:inline-block;
-}
-.table-wrap{overflow-x:auto}
 table{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
-  min-width:980px;
+  min-width:840px;
 }
 th, td{
-  padding:13px 12px;
-  border-bottom:1px solid #e7efff;
+  padding:15px 14px;
+  border-bottom:1px solid #dbe7ff;
   text-align:left;
   vertical-align:middle;
-  font-size:14px;
-  background:transparent;
+  font-size:15px;
+  background:rgba(255,255,255,.55);
+  color:var(--text-strong);
 }
 th{
-  font-size:13px;
-  color:#5d7fb0;
+  font-size:14px;
+  color:#4d6f9f;
   white-space:normal;
   line-height:1.25;
   word-break:break-word;
   font-weight:900;
   letter-spacing:.03em;
   text-transform:uppercase;
-  background:rgba(245,249,255,.95);
+  background:rgba(245,249,255,.96);
 }
 th:first-child{border-top-left-radius:20px}
 th:last-child{border-top-right-radius:20px}
-th.sortable{cursor:pointer;user-select:none}
-th .arrow{margin-left:6px;color:#90a8d2;font-size:11px}
+th.sortable{
+  cursor:pointer;
+  user-select:none;
+}
+th .arrow{
+  margin-left:6px;
+  color:#7f9aca;
+  font-size:11px;
+}
 tbody tr{
-  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  transition:transform .15s ease, background .15s ease;
   animation:fadeUp .45s ease both;
   animation-delay:var(--row-delay,0ms);
 }
 tbody tr:hover{
-  background:rgba(255,255,255,.55);
+  background:rgba(255,255,255,.72);
   transform:translateY(-1px);
 }
-.rank{
-  font-weight:900;
-  color:#547bb0;
-}
-.name{font-weight:900}
-.name a{
-  color:#2c64b2;
-  text-decoration:none;
-}
-.name a:hover{text-decoration:underline}
-.muted{color:var(--muted)}
-.badge{
-  display:inline-flex;
-  align-items:center;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  border:1px solid transparent;
-}
-.badge.active{
-  background:var(--mint-soft);
-  color:#1f8f74;
-  border-color:#b2f0de;
-}
-.badge.inactive{
-  background:var(--danger-soft);
-  color:#bf5574;
-  border-color:#ffc4d4;
-}
-.row-ok td{
-  background:linear-gradient(90deg, rgba(217,255,244,.55), rgba(255,255,255,0) 22%);
-}
-.row-missed td{
-  background:linear-gradient(90deg, rgba(255,226,234,.95), rgba(255,255,255,0) 30%);
-  border-bottom-color:#ffd5df;
-}
-.row-ok td:first-child{border-left:5px solid var(--mint)}
-.row-missed td:first-child{border-left:5px solid var(--danger)}
-.role{
-  display:inline-block;
-  margin-left:8px;
-  color:#ff77b7;
-  font-size:12px;
-  font-weight:900;
-}
-.goal-value.missed{color:#c45472}
-.goal-value.ok{color:#1f8f74}
-.controls{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:16px;
-  align-items:center;
-  animation:fadeUp .6s ease both;
-}
-.seg{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.select-wrap select{
-  padding-right:34px;
-  appearance:none;
-}
-.chart-card{padding:18px}
-.chart-shell{
-  min-height:520px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-.chart-shell svg{
-  width:100%;
-  height:auto;
-  display:block;
-}
-.chart-legend{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px 12px;
-  margin-top:14px;
-}
-.legend-item{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 10px;
-  border:1px solid var(--border);
-  border-radius:12px;
+tbody tr:hover td{
   background:rgba(255,255,255,.72);
+}
+td{
   font-weight:700;
-  color:#5576a7;
 }
-.legend-swatch{
-  width:12px;
-  height:12px;
-  border-radius:4px;
-  flex:0 0 auto;
+.month-link{
+  color:#2a5eab;
+  text-decoration:none;
+  font-weight:900;
+  display:inline-block;
 }
-.note{
+.month-link:hover{
+  text-decoration:underline;
+}
+.empty{
+  padding:24px;
   color:var(--muted);
-  font-size:13px;
-  margin-top:10px;
 }
 @keyframes fadeUp{
   from{opacity:0;transform:translateY(10px)}
   to{opacity:1;transform:translateY(0)}
 }
-@keyframes growBar{
-  from{transform:scaleY(0);transform-origin:bottom}
-  to{transform:scaleY(1);transform-origin:bottom}
-}
-@keyframes popIn{
-  from{opacity:0;transform:scale(.9)}
-  to{opacity:1;transform:scale(1)}
-}
-.bar-anim{animation:growBar .65s ease both}
-.slice-anim{animation:popIn .45s ease both}
-.empty{
-  padding:24px;
-  color:var(--muted);
-}
 @media (max-width:1100px){
   .summary{grid-template-columns:repeat(2, minmax(0,1fr))}
-  .summary.compact4{grid-template-columns:repeat(2, minmax(0,1fr))}
-  .chart-legend{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  .summary,.summary.compact4{grid-template-columns:1fr}
+  .summary{grid-template-columns:1fr}
   h1{font-size:25px}
   .container{width:min(100%, calc(100% - 16px))}
-  table{min-width:840px}
-  .chart-shell{min-height:420px}
+  table{min-width:760px}
+  th, td{font-size:14px}
 }
-</style>
+  </style>
 </head>
 <body>
 
-  <div class="container" style="width:min(1320px, calc(100% - 24px));">
+  <div class="container">
     <div class="header">
       <div>
         <h1 id="pageTitle">Totaux mensuels</h1>
@@ -383,7 +225,7 @@ tbody tr:hover{
       </div>
     </div>
 
-    <div class="summary compact4" id="summary"></div>
+    <div class="summary" id="summary"></div>
 
     <div class="card table-wrap">
       <table>
@@ -403,54 +245,85 @@ tbody tr:hover{
   <script>
     const state = { rows: [], sortKey: "label", sortDirection: "desc" };
     const nf = new Intl.NumberFormat("fr-FR");
+
     function formatNumber(value){ return nf.format(Number(value ?? 0)); }
-    function escapeHtml(value){ return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+    function escapeHtml(value){
+      return String(value ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
     function compareRows(a,b,key,direction){
       const dir = direction === "asc" ? 1 : -1;
       let av=a[key], bv=b[key];
       if (key === "label"){ av=a.order; bv=b.order; }
-      if (typeof av === "string" && typeof bv === "string") return av.localeCompare(bv,"fr",{sensitivity:"base"})*dir;
-      return (Number(av ?? 0)-Number(bv ?? 0))*dir;
+      if (typeof av === "string" && typeof bv === "string"){
+        return av.localeCompare(bv,"fr",{sensitivity:"base"}) * dir;
+      }
+      return (Number(av ?? 0)-Number(bv ?? 0)) * dir;
     }
+
     function renderSortArrows(){
-      document.querySelectorAll("th.sortable").forEach(th=>{
-        th.querySelector(".arrow").textContent = th.dataset.key===state.sortKey ? (state.sortDirection==="asc" ? "▲" : "▼") : "";
+      document.querySelectorAll("th.sortable").forEach(th => {
+        th.querySelector(".arrow").textContent = th.dataset.key === state.sortKey
+          ? (state.sortDirection === "asc" ? "▲" : "▼")
+          : "";
       });
     }
+
     function renderSummary(){
       const totalMonths = state.rows.length;
       const totalGain = state.rows.reduce((sum,row)=>sum+row.monthlyGain,0);
       const avgPerMonth = totalMonths ? Math.round(totalGain / totalMonths) : 0;
-      const avgPerPlayer = totalMonths ? Math.round(state.rows.reduce((sum,row)=>sum+row.avgPerPlayer,0) / totalMonths) : 0;
+      const avgPerPlayer = totalMonths
+        ? Math.round(state.rows.reduce((sum,row)=>sum+row.avgPerPlayer,0) / totalMonths)
+        : 0;
+
       const items = [
         {label:"Mois suivis", value:formatNumber(totalMonths)},
         {label:"Gain cumulé", value:formatNumber(totalGain)},
         {label:"Moyenne / mois", value:formatNumber(avgPerMonth)},
         {label:"Moyenne / joueur", value:formatNumber(avgPerPlayer)}
       ];
-      document.getElementById("summary").innerHTML = items.map(item => `<div class="card summary-item"><div class="label">${item.label}</div><div class="value">${item.value}</div></div>`).join("");
+
+      document.getElementById("summary").innerHTML = items.map(item => `
+        <div class="card summary-item">
+          <div class="label">${item.label}</div>
+          <div class="value">${item.value}</div>
+        </div>
+      `).join("");
     }
+
     function renderTable(){
       const rows = [...state.rows].sort((a,b)=>compareRows(a,b,state.sortKey,state.sortDirection));
+
       if (!rows.length){
         document.getElementById("monthsBody").innerHTML = '<tr><td colspan="4" class="empty">Aucun mois disponible.</td></tr>';
         renderSortArrows();
         return;
       }
+
       document.getElementById("monthsBody").innerHTML = rows.map((row,index)=>`
         <tr style="--row-delay:${index * 18}ms">
-          <td><a class="name" href="./index.html?month=${encodeURIComponent(row.key)}">${escapeHtml(row.label)}</a></td>
+          <td><a class="month-link" href="./index.html?month=${encodeURIComponent(row.key)}">${escapeHtml(row.label)}</a></td>
           <td>${formatNumber(row.monthlyGain)}</td>
           <td>${formatNumber(row.avgPerPlayer)}</td>
           <td>${formatNumber(row.clubTotalFans)}</td>
-        </tr>`).join("");
+        </tr>
+      `).join("");
+
       renderSortArrows();
     }
+
     async function loadData(){
       const manifestResponse = await fetch("./data/index.json");
       if (!manifestResponse.ok) throw new Error("Impossible de charger ./data/index.json");
       const manifest = await manifestResponse.json();
       if (!Array.isArray(manifest) || !manifest.length) throw new Error("Le manifest des mois est vide.");
+
       state.rows = await Promise.all(manifest.map(async (month,index)=>{
         const res = await fetch(month.file);
         if (!res.ok) throw new Error("Impossible de charger " + month.file);
@@ -462,21 +335,32 @@ tbody tr:hover{
         const clubTotalFans = history.length ? Number(history[history.length-1].fan_count || 0) : 0;
         return { key:month.key, label:month.label, order:index, monthlyGain, avgPerPlayer, clubTotalFans };
       }));
+
       document.getElementById("pageSubtitle").textContent = "Gain mensuel du club avec moyenne par joueur.";
       renderSummary();
       renderTable();
     }
+
     function setupEvents(){
       document.querySelectorAll("th.sortable").forEach(th=>{
         th.addEventListener("click",()=>{
           const key = th.dataset.key;
-          if (state.sortKey===key){ state.sortDirection = state.sortDirection==="asc" ? "desc" : "asc"; }
-          else { state.sortKey = key; state.sortDirection = "desc"; }
+          if (state.sortKey===key){
+            state.sortDirection = state.sortDirection==="asc" ? "desc" : "asc";
+          } else {
+            state.sortKey = key;
+            state.sortDirection = "desc";
+          }
           renderTable();
         });
       });
     }
-    async function init(){ setupEvents(); await loadData(); }
+
+    async function init(){
+      setupEvents();
+      await loadData();
+    }
+
     init().catch(error=>{
       document.getElementById("pageTitle").textContent = "Erreur de chargement";
       document.getElementById("pageSubtitle").textContent = error.message;

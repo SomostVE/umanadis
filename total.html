@@ -377,8 +377,8 @@ tbody tr:hover{
         <p class="subtitle" id="pageSubtitle">Chargement…</p>
       </div>
       <div class="top-links">
-        <a href="./index_v2.html">Membres</a>
-        <a class="active" href="./total_v3.html">Totaux</a>
+        <a href="./index.html">Membres</a>
+        <a class="active" href="./total.html">Totaux</a>
         <a href="./graph.html">Graph</a>
       </div>
     </div>
@@ -439,7 +439,7 @@ tbody tr:hover{
       }
       document.getElementById("monthsBody").innerHTML = rows.map((row,index)=>`
         <tr style="--row-delay:${index * 18}ms">
-          <td><a class="name" href="./index_v2.html?month=${encodeURIComponent(row.key)}">${escapeHtml(row.label)}</a></td>
+          <td><a class="name" href="./index.html?month=${encodeURIComponent(row.key)}">${escapeHtml(row.label)}</a></td>
           <td>${formatNumber(row.monthlyGain)}</td>
           <td>${formatNumber(row.avgPerPlayer)}</td>
           <td>${formatNumber(row.clubTotalFans)}</td>

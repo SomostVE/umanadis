@@ -527,7 +527,7 @@ tbody tr:hover{
       if (!res.ok) throw new Error("Impossible de charger " + month.file);
       state.data = await res.json();
       document.getElementById("pageTitle").textContent = (state.data.circle?.name || "Club") + " — Membres";
-      document.getElementById("pageSubtitle").textContent = state.data.circle?.last_updated ? ("Dernière mise à jour : " + formatDate(state.data.circle.last_updated)) : "";
+      
       renderMonthButtons(); renderSummary(); renderMembers();
       const p = new URLSearchParams(window.location.search); p.set("month", month.key);
       history.replaceState(null,"",window.location.pathname + "?" + p.toString());

@@ -216,8 +216,7 @@ td{
     <div class="header">
       <div>
         <h1 id="pageTitle">Totaux mensuels</h1>
-        <p class="subtitle" id="pageSubtitle">Chargement…</p>
-      </div>
+     </div>
       <div class="top-links">
         <a href="./index.html">Membres</a>
         <a class="active" href="./total.html">Totaux</a>
@@ -336,7 +335,7 @@ td{
         return { key:month.key, label:month.label, order:index, monthlyGain, avgPerPlayer, clubTotalFans };
       }));
 
-      document.getElementById("pageSubtitle").textContent = "Gain mensuel du club avec moyenne par joueur.";
+      
       renderSummary();
       renderTable();
     }
@@ -363,7 +362,6 @@ td{
 
     init().catch(error=>{
       document.getElementById("pageTitle").textContent = "Erreur de chargement";
-      document.getElementById("pageSubtitle").textContent = error.message;
       console.error(error);
     });
   </script>

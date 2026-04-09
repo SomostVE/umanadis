@@ -31,16 +31,8 @@ body{
   min-height:100vh;
   color:var(--text);
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  background:
-   url('./assets/images/fond.png') center center / cover fixed no-repeat;
+  background:url('./assets/images/fond.png') center center / cover fixed no-repeat;
   overflow-x:hidden;
-}
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  opacity:.35;
 }
 .container{
   position:relative;
@@ -378,7 +370,7 @@ tbody tr:hover{
       </div>
       <div class="top-links">
         <a href="./index.html">Membres</a>
-        <a class="active" href="./total.html">Totaux</a>
+        <a href="./total.html">Totaux</a>
         <a href="./graph.html">Graph</a>
       </div>
     </div>
@@ -464,7 +456,7 @@ tbody tr:hover{
         </div>`).join("");
       document.getElementById("memberLegend").innerHTML = `
         <div class="pill"><span class="dot" style="background:${missed ? "var(--danger)" : "var(--mint)"}"></span>${missed ? " Sous l’objectif club de 2 000 000" : " Objectif club atteint"}</div>
-        <a class="ghost-btn" href="./index_v2.html?month=${encodeURIComponent(monthKey)}">Retour à la liste du mois</a>`;
+        <a class="ghost-btn" href="./index.html?month=${encodeURIComponent(monthKey)}">Retour à la liste du mois</a>`;
       const fans = Array.isArray(member.daily_fans) ? member.daily_fans : [];
       const delta = Array.isArray(member.daily_delta) ? member.daily_delta : [];
       const rows = [];
@@ -481,8 +473,8 @@ tbody tr:hover{
         </tr>`).join("");
     }
     function setupEvents(){
-      document.getElementById("prevMonthBtn").addEventListener("click",()=>{ if (state.monthIndex>0){ const monthKey=state.manifest[state.monthIndex-1]?.key || ""; window.location.href="./member_v2.html?month="+encodeURIComponent(monthKey)+"&id="+encodeURIComponent(state.memberId); }});
-      document.getElementById("nextMonthBtn").addEventListener("click",()=>{ if (state.monthIndex<state.manifest.length-1){ const monthKey=state.manifest[state.monthIndex+1]?.key || ""; window.location.href="./member_v2.html?month="+encodeURIComponent(monthKey)+"&id="+encodeURIComponent(state.memberId); }});
+      document.getElementById("prevMonthBtn").addEventListener("click",()=>{ if (state.monthIndex>0){ const monthKey=state.manifest[state.monthIndex-1]?.key || ""; window.location.href="./member.html?month="+encodeURIComponent(monthKey)+"&id="+encodeURIComponent(state.memberId); }});
+      document.getElementById("nextMonthBtn").addEventListener("click",()=>{ if (state.monthIndex<state.manifest.length-1){ const monthKey=state.manifest[state.monthIndex+1]?.key || ""; window.location.href="./member.html?month="+encodeURIComponent(monthKey)+"&id="+encodeURIComponent(state.memberId); }});
     }
     async function init(){
       const params = getParams();

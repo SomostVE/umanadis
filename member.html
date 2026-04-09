@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Uma Musume Club Dashboard</title>
+  <title>Membre - Uma Musume Club Dashboard</title>
   <style>
 :root{
   --bg1:#fff5fb;
@@ -33,7 +33,6 @@ body{
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   background:
    url('./assets/images/fond.png') center center / cover fixed no-repeat;
-
   overflow-x:hidden;
 }
 body::before{
@@ -371,15 +370,15 @@ tbody tr:hover{
 </head>
 <body>
 
-  <div class="container">
+  <div class="container" style="width:min(1320px, calc(100% - 24px));">
     <div class="header">
       <div>
-        <h1 id="pageTitle">Uma Musume Club Dashboard</h1>
-        <p class="subtitle" id="pageSubtitle">Chargement…</p>
+        <h1 id="pageTitle">Membre</h1>
+        <p class="subtitle" id="pageSubtitle"></p>
       </div>
       <div class="top-links">
-        <a class="active" href="./index_v2.html">Membres</a>
-        <a href="./total_v3.html">Totaux</a>
+        <a href="./index.html">Membres</a>
+        <a class="active" href="./total.html">Totaux</a>
         <a href="./graph.html">Graph</a>
       </div>
     </div>
@@ -391,126 +390,32 @@ tbody tr:hover{
     </div>
 
     <div class="summary" id="summary"></div>
-
-    <div class="legend">
-      <div class="pill"><span class="dot" style="background:var(--mint)"></span> Objectif atteint : 2 000 000+</div>
-      <div class="pill"><span class="dot" style="background:var(--danger)"></span> Sous l’objectif club : moins de 2 000 000</div>
-    </div>
+    <div class="legend" id="memberLegend"></div>
 
     <div class="card table-wrap">
       <table>
         <thead>
-          <tr>
-            <th class="sortable" data-key="rankMonthly">Rank<span class="arrow"></span></th>
-            <th class="sortable" data-key="name">Nom<span class="arrow"></span></th>
-            <th class="sortable" data-key="trainer_id">ID<span class="arrow"></span></th>
-            <th class="sortable" data-key="status">Status<span class="arrow"></span></th>
-            <th class="sortable" data-key="monthly_gain">Monthly gain<span class="arrow"></span></th>
-            <th class="sortable" data-key="daily_gain">Daily gain<span class="arrow"></span></th>
-            <th class="sortable" data-key="seven_day_avg">7 day average<span class="arrow"></span></th>
-            <th class="sortable" data-key="fan_count">Total fans<span class="arrow"></span></th>
-                      </tr>
+          <tr><th>Jour</th><th>Total fans</th><th>Gain du jour</th></tr>
         </thead>
-        <tbody id="membersBody"></tbody>
+        <tbody id="memberHistoryBody"></tbody>
       </table>
     </div>
   </div>
 
   <script>
     const GOAL = 2000000;
-    const state = { manifest: [], monthIndex: 0, data: null, sortKey: "monthly_gain", sortDirection: "desc" };
+    const state = { manifest: [], monthIndex: 0, data: null, memberId: null };
     const nf = new Intl.NumberFormat("fr-FR");
-
     function formatNumber(value){ return nf.format(Number(value ?? 0)); }
     function formatDate(value){
       if(!value) return "—";
       const d = new Date(value);
       return new Intl.DateTimeFormat("fr-FR",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(d);
     }
-    function escapeHtml(value){
-      return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-    }
-    function getParams(){ const p=new URLSearchParams(window.location.search); return {month:p.get("month")}; }
-    function getStatus(member){ return member.isActive ? "Actif" : "Ancien membre"; }
+    function getParams(){ const p=new URLSearchParams(window.location.search); return {month:p.get("month"), id:p.get("id")}; }
     function resolveMonthIndex(monthKey){
       const found = state.manifest.findIndex(item => item.key === monthKey);
       return found >= 0 ? found : Math.max(0, state.manifest.length - 1);
-    }
-    function computeRankMap(members){
-      const sorted=[...members].sort((a,b)=>{
-        if ((b.monthly_gain ?? 0)!==(a.monthly_gain ?? 0)) return (b.monthly_gain ?? 0)-(a.monthly_gain ?? 0);
-        if ((b.fan_count ?? 0)!==(a.fan_count ?? 0)) return (b.fan_count ?? 0)-(a.fan_count ?? 0);
-        return (a.name ?? "").localeCompare(b.name ?? "","fr",{sensitivity:"base"});
-      });
-      const map = new Map();
-      sorted.forEach((m,i)=>map.set(m.trainer_id,i+1));
-      return map;
-    }
-    function compareRows(a,b,key,direction){
-      const dir = direction === "asc" ? 1 : -1;
-      let av=a[key], bv=b[key];
-      if (key==="status"){ av=getStatus(a); bv=getStatus(b); }
-      if (typeof av === "string" && typeof bv === "string") return av.localeCompare(bv,"fr",{sensitivity:"base"})*dir;
-      return (Number(av ?? 0)-Number(bv ?? 0))*dir;
-    }
-    function renderSortArrows(){
-      document.querySelectorAll("th.sortable").forEach(th=>{
-        const arrow=th.querySelector(".arrow");
-        arrow.textContent = th.dataset.key===state.sortKey ? (state.sortDirection==="asc" ? "▲" : "▼") : "";
-      });
-    }
-    function renderSummary(){
-      const circle = state.data.circle || {};
-      const members = state.data.members || [];
-      const history = state.data.history || [];
-      const totalMonthly = members.reduce((sum,m)=>sum+Number(m.monthly_gain || 0),0);
-      const avgPlayer = members.length ? Math.round(totalMonthly / members.length) : 0;
-      const missed = members.filter(m=>Number(m.monthly_gain || 0) < GOAL).length;
-      const totalFans = history.length ? history[history.length-1].fan_count : (circle.monthly_point || 0);
-      const monthItem = state.manifest[state.monthIndex];
-      const items = [
-        {label:"Mois", value:monthItem?.label || "—"},
-        {label:"Objectif club", value:formatNumber(GOAL)},
-        {label:"Sous l’objectif", value:formatNumber(missed)},
-        {label:"Gain du mois", value:formatNumber(totalMonthly)},
-        {label:"Moyenne/joueur", value:formatNumber(avgPlayer)},
-        {label:"Total fans club", value:formatNumber(totalFans)}
-      ];
-      document.getElementById("summary").innerHTML = items.map(item => `
-        <div class="card summary-item">
-          <div class="label">${item.label}</div>
-          <div class="value">${item.value}</div>
-        </div>`).join("");
-    }
-    function renderMembers(){
-      const members = state.data.members || [];
-      const rankMap = computeRankMap(members);
-      const monthKey = state.manifest[state.monthIndex]?.key || "";
-      const rows = members.map(member => ({...member, rankMonthly:rankMap.get(member.trainer_id), status:getStatus(member)}));
-      rows.sort((a,b)=>compareRows(a,b,state.sortKey,state.sortDirection));
-      document.getElementById("membersBody").innerHTML = rows.map((member,index)=>{
-        const missed = Number(member.monthly_gain || 0) < GOAL;
-        return `
-          <tr class="${missed ? "row-missed" : "row-ok"}" style="--row-delay:${index * 18}ms">
-            <td class="rank">#${member.rankMonthly}</td>
-            <td class="name">
-              <a href="./member_v2.html?month=${encodeURIComponent(monthKey)}&id=${encodeURIComponent(member.trainer_id)}">${escapeHtml(member.name)}</a>
-              ${member.role === "leader" ? '<span class="role">Leader</span>' : ""}
-            </td>
-            <td class="muted">${escapeHtml(member.trainer_id)}</td>
-            <td><span class="badge ${member.isActive ? "active" : "inactive"}">${member.isActive ? "Actif" : "Ancien membre"}</span></td>
-            <td><span class="goal-value ${missed ? "missed" : "ok"}">${formatNumber(member.monthly_gain)}</span></td>
-            <td>${formatNumber(member.daily_gain)}</td>
-            <td>${formatNumber(Math.round(member.seven_day_avg || 0))}</td>
-            <td>${formatNumber(member.fan_count)}</td>
-          </tr>`;
-      }).join("");
-      renderSortArrows();
-    }
-    function renderMonthButtons(){
-      document.getElementById("prevMonthBtn").disabled = state.monthIndex <= 0;
-      document.getElementById("nextMonthBtn").disabled = state.monthIndex >= state.manifest.length - 1;
-      document.getElementById("monthLabel").textContent = state.manifest[state.monthIndex]?.label || "—";
     }
     async function loadManifest(){
       const res = await fetch("./data/index.json");
@@ -524,28 +429,67 @@ tbody tr:hover{
       const res = await fetch(month.file);
       if (!res.ok) throw new Error("Impossible de charger " + month.file);
       state.data = await res.json();
-      document.getElementById("pageTitle").textContent = (state.data.circle?.name || "Club") + " — Membres";
-      document.getElementById("pageSubtitle").textContent = state.data.circle?.last_updated ? ("Dernière mise à jour : " + formatDate(state.data.circle.last_updated)) : "";
-      renderMonthButtons(); renderSummary(); renderMembers();
-      const p = new URLSearchParams(window.location.search); p.set("month", month.key);
-      history.replaceState(null,"",window.location.pathname + "?" + p.toString());
+      renderMonthButtons();
+      renderMember();
+    }
+    function renderMonthButtons(){
+      document.getElementById("prevMonthBtn").disabled = state.monthIndex <= 0;
+      document.getElementById("nextMonthBtn").disabled = state.monthIndex >= state.manifest.length - 1;
+      document.getElementById("monthLabel").textContent = state.manifest[state.monthIndex]?.label || "—";
+    }
+    function renderMember(){
+      const members = state.data.members || [];
+      const member = members.find(m => String(m.trainer_id) === String(state.memberId));
+      if (!member){
+        document.getElementById("pageTitle").textContent = "Membre introuvable";
+        document.getElementById("memberHistoryBody").innerHTML = '<tr><td colspan="3" class="empty">Aucun membre trouvé pour cet identifiant.</td></tr>';
+        return;
+      }
+      const monthKey = state.manifest[state.monthIndex]?.key || "";
+      const missed = Number(member.monthly_gain || 0) < GOAL;
+      document.getElementById("pageTitle").textContent = member.name;
+      document.getElementById("pageSubtitle").textContent = "ID " + member.trainer_id + " — " + formatDate(member.last_updated);
+      const items = [
+        {label:"Status", value: member.isActive ? "Actif" : "Ancien membre"},
+        {label:"Role", value: member.role || "member"},
+        {label:"Monthly gain", value: formatNumber(member.monthly_gain)},
+        {label:"Daily gain", value: formatNumber(member.daily_gain)},
+        {label:"7 day average", value: formatNumber(Math.round(member.seven_day_avg || 0))},
+        {label:"Total fans", value: formatNumber(member.fan_count)}
+      ];
+      document.getElementById("summary").innerHTML = items.map(item => `
+        <div class="card summary-item">
+          <div class="label">${item.label}</div>
+          <div class="value">${item.value}</div>
+        </div>`).join("");
+      document.getElementById("memberLegend").innerHTML = `
+        <div class="pill"><span class="dot" style="background:${missed ? "var(--danger)" : "var(--mint)"}"></span>${missed ? " Sous l’objectif club de 2 000 000" : " Objectif club atteint"}</div>
+        <a class="ghost-btn" href="./index_v2.html?month=${encodeURIComponent(monthKey)}">Retour à la liste du mois</a>`;
+      const fans = Array.isArray(member.daily_fans) ? member.daily_fans : [];
+      const delta = Array.isArray(member.daily_delta) ? member.daily_delta : [];
+      const rows = [];
+      for (let i=0; i<Math.max(fans.length, delta.length); i++){
+        const fansValue = fans[i], deltaValue = delta[i];
+        if (fansValue === 0 && deltaValue == null) continue;
+        rows.push({day:i+1, fans:fansValue, delta:deltaValue});
+      }
+      document.getElementById("memberHistoryBody").innerHTML = rows.map((row,index)=>`
+        <tr class="${missed ? "row-missed" : "row-ok"}" style="--row-delay:${index * 18}ms">
+          <td>${row.day}</td>
+          <td>${row.fans ? formatNumber(row.fans) : "—"}</td>
+          <td>${row.delta == null ? "—" : formatNumber(row.delta)}</td>
+        </tr>`).join("");
     }
     function setupEvents(){
-      document.getElementById("prevMonthBtn").addEventListener("click",()=>{ if (state.monthIndex>0) loadMonth(state.monthIndex-1); });
-      document.getElementById("nextMonthBtn").addEventListener("click",()=>{ if (state.monthIndex<state.manifest.length-1) loadMonth(state.monthIndex+1); });
-      document.querySelectorAll("th.sortable").forEach(th=>{
-        th.addEventListener("click",()=>{
-          const key = th.dataset.key;
-          if (state.sortKey===key){ state.sortDirection = state.sortDirection==="asc" ? "desc" : "asc"; }
-          else { state.sortKey=key; state.sortDirection = (key==="name" || key==="status") ? "asc" : "desc"; }
-          renderMembers();
-        });
-      });
+      document.getElementById("prevMonthBtn").addEventListener("click",()=>{ if (state.monthIndex>0){ const monthKey=state.manifest[state.monthIndex-1]?.key || ""; window.location.href="./member_v2.html?month="+encodeURIComponent(monthKey)+"&id="+encodeURIComponent(state.memberId); }});
+      document.getElementById("nextMonthBtn").addEventListener("click",()=>{ if (state.monthIndex<state.manifest.length-1){ const monthKey=state.manifest[state.monthIndex+1]?.key || ""; window.location.href="./member_v2.html?month="+encodeURIComponent(monthKey)+"&id="+encodeURIComponent(state.memberId); }});
     }
     async function init(){
+      const params = getParams();
+      state.memberId = params.id;
       setupEvents();
       await loadManifest();
-      await loadMonth(resolveMonthIndex(getParams().month));
+      await loadMonth(resolveMonthIndex(params.month));
     }
     init().catch(error=>{
       document.getElementById("pageTitle").textContent = "Erreur de chargement";

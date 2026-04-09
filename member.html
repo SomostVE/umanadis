@@ -31,10 +31,7 @@ body{
   min-height:100vh;
   color:var(--text);
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(255,119,183,.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(111,168,255,.18), transparent 30%),
-    linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 100%);
+  background-image: url('./assets/images/fond.png');
   overflow-x:hidden;
 }
 body::before{
@@ -42,9 +39,7 @@ body::before{
   position:fixed;
   inset:0;
   pointer-events:none;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.35), transparent 35%),
-    repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 18px, rgba(255,255,255,0) 18px 36px);
+  background-image: url('./assets/images/fond.png');
   opacity:.35;
 }
 .container{

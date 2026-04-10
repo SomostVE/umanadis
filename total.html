@@ -13,6 +13,11 @@
   --muted:#4a648f;
   --blue-soft:#deedff;
   --shadow:0 12px 40px rgba(122,147,201,.16);
+  --up:#198f63;
+  --up-bg:rgba(25,143,99,.10);
+  --down:#c45472;
+  --down-bg:rgba(196,84,114,.10);
+  --neutral:#6f86ab;
 }
 *{box-sizing:border-box}
 html, body{
@@ -47,12 +52,6 @@ h1{
   letter-spacing:-.02em;
   color:var(--text-strong);
 }
-.subtitle{
-  color:var(--text-strong);
-  margin:0;
-  font-size:15px;
-  font-weight:700;
-}
 .top-links{
   display:flex;
   gap:10px;
@@ -66,7 +65,7 @@ h1{
   border-radius:14px;
   padding:10px 14px;
   font-weight:800;
-  box-shadow:var(--shadow);
+  box-shadow:0 12px 40px rgba(122,147,201,.16);
   transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
 }
 .top-links a:hover{
@@ -84,7 +83,7 @@ h1{
   backdrop-filter: blur(10px);
   border:1px solid var(--border);
   border-radius:22px;
-  box-shadow:var(--shadow);
+  box-shadow:0 12px 40px rgba(122,147,201,.16);
   animation:fadeUp .55s ease both;
 }
 .summary{
@@ -140,7 +139,7 @@ table{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
-  min-width:840px;
+  min-width:1040px;
 }
 th, td{
   padding:16px 14px;
@@ -206,6 +205,33 @@ td{
   background:#fff;
   border-color:#bfd5ff;
 }
+.metric{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.delta{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+}
+.delta.up{
+  color:var(--up);
+  background:var(--up-bg);
+}
+.delta.down{
+  color:var(--down);
+  background:var(--down-bg);
+}
+.delta.neutral{
+  color:var(--neutral);
+  background:rgba(111,134,171,.10);
+}
 .empty{
   padding:24px;
   color:var(--muted);
@@ -222,7 +248,7 @@ td{
   .summary{grid-template-columns:1fr}
   h1{font-size:25px}
   .container{width:min(100%, calc(100% - 16px))}
-  table{min-width:760px}
+  table{min-width:920px}
   th, td{font-size:14px}
 }
   </style>
@@ -261,8 +287,10 @@ td{
   <script>
     const state = { rows: [], sortKey: "label", sortDirection: "desc" };
     const nf = new Intl.NumberFormat("fr-FR");
+    const pf = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
     function formatNumber(value){ return nf.format(Number(value ?? 0)); }
+    function formatPercent(value){ return pf.format(value) + " %"; }
     function escapeHtml(value){
       return String(value ?? "")
         .replaceAll("&","&amp;")
@@ -270,6 +298,18 @@ td{
         .replaceAll(">","&gt;")
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
+    }
+
+    function computeDelta(current, previous){
+      if (previous == null || previous === 0) return null;
+      return ((current - previous) / previous) * 100;
+    }
+
+    function renderDelta(delta){
+      if (delta == null) return '<span class="delta neutral">—</span>';
+      if (delta > 0) return `<span class="delta up">(+ ${formatPercent(delta)})</span>`;
+      if (delta < 0) return `<span class="delta down">(${formatPercent(delta)})</span>`;
+      return '<span class="delta neutral">(0,0 %)</span>';
     }
 
     function compareRows(a,b,key,direction){
@@ -325,9 +365,9 @@ td{
       document.getElementById("monthsBody").innerHTML = rows.map((row,index)=>`
         <tr style="--row-delay:${index * 18}ms">
           <td><a class="month-link" href="./index.html?month=${encodeURIComponent(row.key)}">${escapeHtml(row.label)}</a></td>
-          <td>${formatNumber(row.monthlyGain)}</td>
-          <td>${formatNumber(row.avgPerPlayer)}</td>
-          <td>${formatNumber(row.clubTotalFans)}</td>
+          <td><div class="metric"><span>${formatNumber(row.monthlyGain)}</span>${renderDelta(row.monthlyGainDelta)}</div></td>
+          <td><div class="metric"><span>${formatNumber(row.avgPerPlayer)}</span>${renderDelta(row.avgPerPlayerDelta)}</div></td>
+          <td><div class="metric"><span>${formatNumber(row.clubTotalFans)}</span>${renderDelta(row.clubTotalFansDelta)}</div></td>
         </tr>
       `).join("");
 
@@ -340,7 +380,7 @@ td{
       const manifest = await manifestResponse.json();
       if (!Array.isArray(manifest) || !manifest.length) throw new Error("Le manifest des mois est vide.");
 
-      state.rows = await Promise.all(manifest.map(async (month,index)=>{
+      const baseRows = await Promise.all(manifest.map(async (month,index)=>{
         const res = await fetch(month.file);
         if (!res.ok) throw new Error("Impossible de charger " + month.file);
         const data = await res.json();
@@ -351,6 +391,16 @@ td{
         const clubTotalFans = history.length ? Number(history[history.length-1].fan_count || 0) : 0;
         return { key:month.key, label:month.label, order:index, monthlyGain, avgPerPlayer, clubTotalFans };
       }));
+
+      state.rows = baseRows.map((row,index)=> {
+        const previous = index > 0 ? baseRows[index - 1] : null;
+        return {
+          ...row,
+          monthlyGainDelta: computeDelta(row.monthlyGain, previous?.monthlyGain),
+          avgPerPlayerDelta: computeDelta(row.avgPerPlayer, previous?.avgPerPlayer),
+          clubTotalFansDelta: computeDelta(row.clubTotalFans, previous?.clubTotalFans)
+        };
+      });
 
       renderSummary();
       renderTable();

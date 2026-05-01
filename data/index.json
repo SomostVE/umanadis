@@ -23,5 +23,10 @@
     "key": "2026-03",
     "label": "Mars 2026",
     "file": "./data/months/2026-03.json"
+  },
+      {
+    "key": "2026-04",
+    "label": "Avril 2026",
+    "file": "./data/months/2026-04.json"
   }
 ]
